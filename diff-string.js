@@ -125,6 +125,7 @@ function diffString(oldText, newText) {
 			
 		}
 		
+		if (debug) console.log(logPrefix, mergedText);
 		return mergedText;
 		
 	}
