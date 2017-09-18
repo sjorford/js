@@ -5,8 +5,8 @@ function diffString(oldText, newText) {
 	// Split incoming text
 	var oldWords = splitText(oldText);
 	var newWords = splitText(newText);
-	if (debug) console.log(oldWords);
-	if (debug) console.log(newWords);
+	if (debug) console.log('diffString', oldWords);
+	if (debug) console.log('diffString', newWords);
 	
 	// Process the initial set of words
 	return findDifferences(oldWords, newWords, 0);
@@ -28,7 +28,9 @@ function diffString(oldText, newText) {
 	// Markup a section of text
 	function findDifferences(oldWords, newWords, depth) {
 		var logPrefix = ' '.repeat(depth * 4) + 'findDifferences';
-		
+		if (debug) console.log(logPrefix, oldWords);
+		if (debug) console.log(logPrefix, newWords);
+
 		// Find the longest consecutive run of matching words
 		var bestOldStart = 0, bestNewStart = 0, bestRun = 0;
 		var oldStart = 0, newStart = 0, testRun = 0, foundRun = 0;
