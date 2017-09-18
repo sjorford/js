@@ -1,8 +1,12 @@
 function diffString(oldText, newText) {
 	
+	var debug = true;
+	
 	// Split incoming text
 	var oldWords = splitText(oldText);
 	var newWords = splitText(newText);
+	if (debug) console.log(oldWords);
+	if (debug) console.log(newWords);
 	
 	// Process the initial set of words
 	return findDifferences(oldWords, newWords, 0);
