@@ -1,3 +1,8 @@
+var sjoQ = {};
+sjoQ.version = '2019.07.10.0';
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Add a new cell to a table row
 (function($) {
 	
@@ -40,8 +45,11 @@
 	
 })(jQuery);
 
+////////////////////////////////////////////////////////////////////////////////
+
 // Select range
 (function($) {
+	
 	$.fn.selectRange = function() {
 		var range = document.createRange();
 		range.selectNodeContents(this.get(0));
@@ -50,4 +58,58 @@
 		selection.addRange(range);
 		return this;
 	};
+	
+})(jQuery);
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Collapsible section
+(function($) {
+	
+	// Expand or collapse a section
+	function _toggle(expand) {
+		var wrapper = this.closest('.sjo-collapsible');
+		var heading = $(wrapper.data('sjo').collapsible.heading);
+		if (expand) {
+			wrapper.show();
+			heading.find('.sjo-collapsible-collapse').show();
+			heading.find('.sjo-collapsible-expand').hide();
+		} else {
+			wrapper.hide();
+			heading.find('.sjo-collapsible-collapse').hide();
+			heading.find('.sjo-collapsible-expand').show();
+		}
+	}
+	
+	$.fn.expand = function() {
+		_toggle.call(this, true);
+	}
+	
+	$.fn.collapse = function() {
+		_toggle.call(this, false);
+	}
+	
+	// Make a section collapsible
+	$.fn.collapsible = function(heading, expand) {
+		
+		var _heading = $(heading).get(0);
+		
+		// Add buttons to header
+		var buttonWrapper = $('<span style="font-size: small;"></span>').appendTo(heading);
+		var expandButton = $('<a class="sjo-collapsible-expand">[Expand]</a>').appendTo(buttonWrapper).click(() => this.expand());
+		var collapseButton = $('<a class="sjo-collapsible-collapse">[Collapse]</a>').appendTo(buttonWrapper).click(() => this.collapse());
+		
+		// Wrap content in new div
+		this.wrapAll('<div class="sjo-collapsible"></div>').closest('.sjo-collapsible').data({sjo: {collapsible: {heading: _heading}}});
+		
+		// Apply default state
+		if (expand)
+			this.expand();
+		else
+			this.collapse();
+		
+		return this;
+		
+	};
+	
 })(jQuery);
