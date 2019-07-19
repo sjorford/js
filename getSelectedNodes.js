@@ -24,7 +24,7 @@ function getSelectedNodes() {
 	var allNodes = [];
 	var passedNodeA = false;
 	getNodes(commonParent);
-	return allNodes();
+	return allNodes;
 	
 	function getNodes(node) {
 		
