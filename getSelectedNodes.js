@@ -23,7 +23,8 @@ function getSelectedNodes() {
 	// Traverse the tree below the common parent
 	var allNodes = [];
 	var passedNodeA = false;
-	return getNodes(commonParent);
+	getNodes(commonParent);
+	return allNodes();
 	
 	function getNodes(node) {
 		
