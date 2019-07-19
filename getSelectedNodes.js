@@ -1,5 +1,7 @@
 function getSelectedNodes() {
 	
+	var $ = jQuery;
+	
 	// This function will return all nodes (including text nodes) that are in the current selection
 	
 	var nodeA = $(window.getSelection().anchorNode);
