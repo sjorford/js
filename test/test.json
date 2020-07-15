@@ -1,0 +1,38 @@
+{
+	"ACME":{
+		"foo":{
+			"baz":[
+				"John",
+				"Paul",
+				"George",
+				{
+					"name":"Ringo",
+					"drummer":true
+				}
+			],
+			"dummy":{
+				"fnarg":[
+					{
+						"Blenge":"Hackett",
+						"damn":[
+							null,
+							null,
+							"DAMN",
+							3.14
+						]
+					},
+					{
+						"triceratops":1,
+						"triceratops%0$paper":"plastic"
+					}
+				],
+				"fnarg%0$type":"none",
+				"gork":"Son of Fire"
+			}
+		},
+		"foo$hello":"world",
+		"gonk":null,
+		"bar":"waffles"
+	},
+	"ACME%0$xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"
+}

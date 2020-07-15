@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<ACME xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<foo hello="world">
+		<baz>John</baz>
+		<baz>Paul</baz>
+		<baz>George</baz>
+		<baz><name>Ringo</name><drummer>true</drummer></baz>
+		<dummy>
+			<fnarg type="none">
+				<Blenge>Hackett</Blenge>
+				<damn></damn>
+				<damn></damn>
+				<damn>DAMN</damn>
+				<damn>3.14</damn>
+			</fnarg>
+			<fnarg>
+				<triceratops paper="plastic">1.00</triceratops>
+			</fnarg>
+			<gork>Son of Fire</gork>
+		</dummy>
+	</foo>
+	<gonk></gonk>
+	<bar>waffles</bar>
+</ACME>
