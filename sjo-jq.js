@@ -112,4 +112,35 @@ sjoQ.version = '2019.07.10.0';
 		
 	};
 	
+	
+})(jQuery);
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Get table headers
+(function($) {
+	
+	$.fn.getTableHeaders = function() {
+		
+		var headers = [];
+		if (!(this.is('table'))) return headers;
+		
+		this.find('thead:first-of-type').find('th, td').each((i,e) => {
+			
+			var th = $(e);
+			headers.push(th.text().replace(/\s+/, ' ').trim());
+			
+			var colspan = th.attr('colspan');
+			if (colspan && colspan - 0 > 1) {
+				for (var i = 1; i < colspan - 0; i++) {
+					headers.push(null);
+				}
+			}
+			
+		});
+		
+		return headers;
+		
+	}
+	
 })(jQuery);
