@@ -1,31 +1,42 @@
 var sjoQ = {};
-sjoQ.version = '2019.07.10.0';
+sjoQ.version = '2023.09.30.0';
 
-////////////////////////////////////////////////////////////////////////////////
-
-// Add a new cell to a table row
 (function($) {
 	
+	$.fn.extend({
+		addCell:         addCell,
+		addCellHTML:     addCellHTML,
+		addHeader:       addHeader,
+		addHeaderHTML:   addHeaderHTML,
+		selectRange:     selectRange,
+		expand:          expand,
+		collapse:        collapse,
+		collapsible:     collapsible,
+		getTableHeaders: getTableHeaders,
+		numCols:         numCols,
+	});
+	
 	// Add cell with text content
-	$.fn.addCell = function(text, className, id) {
+	function addCell(text, className, id) {
 		return _addCell(this, false, text, className, id, false);
-	};
+	}
 	
 	// Add cell with HTML content
-	$.fn.addCellHTML = function(html, className, id) {
+	function addCellHTML(html, className, id) {
 		return _addCell(this, true, html, className, id, false);
-	};
+	}
 	
 	// Add header cell with text content
-	$.fn.addHeader = function(text, className, id) {
+	function addHeader(text, className, id) {
 		return _addCell(this, false, text, className, id, true);
-	};
+	}
 	
 	// Add header cell with HTML content
-	$.fn.addHeaderHTML = function(html, className, id) {
+	function addHeaderHTML(html, className, id) {
 		return _addCell(this, true, html, className, id, true);
-	};
+	}
 	
+	// Add a new cell to a table row
 	function _addCell(obj, isHTML, content, className, id, header) {
 		for (var i = 0; i < obj.length; i++) {
 			var row = obj[i];
@@ -43,28 +54,15 @@ sjoQ.version = '2019.07.10.0';
 		return obj;
 	}
 	
-})(jQuery);
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Select range
-(function($) {
-	
-	$.fn.selectRange = function() {
+	// Select range
+	function selectRange() {
 		var range = document.createRange();
 		range.selectNodeContents(this.get(0));
-		var selection = getSelection();
+		var selection = Window.getSelection();
 		selection.removeAllRanges();
 		selection.addRange(range);
 		return this;
-	};
-	
-})(jQuery);
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Collapsible section
-(function($) {
+	}
 	
 	// Expand or collapse a section
 	function _toggle(expand) {
@@ -81,23 +79,23 @@ sjoQ.version = '2019.07.10.0';
 		}
 	}
 	
-	$.fn.expand = function() {
+	function expand() {
 		_toggle.call(this, true);
 	}
 	
-	$.fn.collapse = function() {
+	function collapse() {
 		_toggle.call(this, false);
 	}
 	
 	// Make a section collapsible
-	$.fn.collapsible = function(heading, expand) {
+	function collapsible(heading, expand) {
 		
 		var _heading = $(heading).get(0);
 		
 		// Add buttons to header
 		var buttonWrapper = $('<span style="font-size: small;"></span>').appendTo(heading);
-		var expandButton = $('<a class="sjo-collapsible-expand">[Expand]</a>').appendTo(buttonWrapper).click(() => this.expand());
-		var collapseButton = $('<a class="sjo-collapsible-collapse">[Collapse]</a>').appendTo(buttonWrapper).click(() => this.collapse());
+		$('<a class="sjo-collapsible-expand">[Expand]</a>').appendTo(buttonWrapper).click(() => this.expand());
+		$('<a class="sjo-collapsible-collapse">[Collapse]</a>').appendTo(buttonWrapper).click(() => this.collapse());
 		
 		// Wrap content in new div
 		this.wrapAll('<div class="sjo-collapsible"></div>').closest('.sjo-collapsible').data({sjo: {collapsible: {heading: _heading}}});
@@ -110,17 +108,10 @@ sjoQ.version = '2019.07.10.0';
 		
 		return this;
 		
-	};
+	}
 	
-	
-})(jQuery);
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Get table headers
-(function($) {
-	
-	$.fn.getTableHeaders = function() {
+	// Get array of table headers 
+	function getTableHeaders() {
 		
 		var headers = [];
 		if (!(this.is('table'))) return headers;
@@ -141,6 +132,12 @@ sjoQ.version = '2019.07.10.0';
 		
 		return headers;
 		
+	}
+	
+	// Get number of columns in table, based on first row
+	function numCols() {
+		if (!this.first().is('table')) return 0;
+		return this.first().find('tr').first().find('td,th').toArray().map(e => e.colSpan ? (e.colSpan - 0) : 1).reduce((s, a) => s + a, 0);
 	}
 	
 })(jQuery);
