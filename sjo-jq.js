@@ -1,5 +1,5 @@
 var sjoQ = {};
-sjoQ.version = '2023.09.30.0';
+sjoQ.version = '2023.10.01.0';
 
 (function($) {
 	
@@ -58,7 +58,7 @@ sjoQ.version = '2023.09.30.0';
 	function selectRange() {
 		var range = document.createRange();
 		range.selectNodeContents(this.get(0));
-		var selection = Window.getSelection();
+		var selection = getSelection();
 		selection.removeAllRanges();
 		selection.addRange(range);
 		return this;
