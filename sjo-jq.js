@@ -1,5 +1,6 @@
 var sjoQ = {};
-sjoQ.version = '2023.10.01.0';
+sjoQ.version = '2023.10.04.0';
+console.log('sjoQ version ' + sjoQ.version);
 
 (function($) {
 	
@@ -14,6 +15,7 @@ sjoQ.version = '2023.10.01.0';
 		collapsible:     collapsible,
 		getTableHeaders: getTableHeaders,
 		numCols:         numCols,
+		indexCells:      indexCells,
 	});
 	
 	// Add cell with text content
@@ -138,6 +140,57 @@ sjoQ.version = '2023.10.01.0';
 	function numCols() {
 		if (!this.first().is('table')) return 0;
 		return this.first().find('tr').first().find('td,th').toArray().map(e => e.colSpan ? (e.colSpan - 0) : 1).reduce((s, a) => s + a, 0);
+	}
+	
+	// Index cells by actual row and column number, accounting for spanned cells
+	function indexCells() {
+		
+		// Index each table separately
+		this.filter('table').each((tableIndex, tableElement) => {
+			
+			// Keep track of cells on later rows and columns
+			var spannedCells = [];
+			
+			// Loop through all rows in table
+			// TODO: split by thead / tbody?
+			$('tr', tableElement).each((rowIndex, rowElement) => {
+				
+				// Reset column index 
+				var colIndexActual = 0;
+				
+				// Initialise row of array if not already
+				if (!spannedCells[rowIndex]) spannedCells[rowIndex] = [];				
+				
+				// Loop through cells
+				$('th, td', rowElement).each((colIndexOriginal, cellElement) => {
+					
+					// Skip over any spanned cells
+					while (spannedCells[rowIndex][colIndexActual]) {
+						colIndexActual++;
+					}
+					
+					// Write indexes to cell
+					$(cellElement).data('sjo-row', rowIndex).data('sjo-col', colIndexActual);
+					
+					// Get dimensions of cell
+					var rowspan = (cellElement.rowSpan || 1) - 0;
+					var colspan = (cellElement.colSpan || 1) - 0;
+					
+					// Mark spanned cells on later rows and columns
+					for (var r = rowIndex; r < rowIndex + rowspan; r++) {
+						if (!spannedCells[r]) spannedCells[r] = [];
+						for (var c = colIndexActual; c < colIndexActual + colspan; c++) {
+							spannedCells[r][c] = true;
+						}
+					}
+					
+				});
+				
+			});
+			
+		});
+		
+		return this;
 	}
 	
 })(jQuery);
