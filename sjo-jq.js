@@ -1,5 +1,5 @@
 var sjoQ = {};
-sjoQ.version = '2023.10.04.0';
+sjoQ.version = '2023.10.05.0';
 console.log('sjoQ version ' + sjoQ.version);
 
 (function($) {
@@ -145,15 +145,14 @@ console.log('sjoQ version ' + sjoQ.version);
 	// Index cells by actual row and column number, accounting for spanned cells
 	function indexCells() {
 		
-		// Index each table separately
-		this.filter('table').each((tableIndex, tableElement) => {
+		// Index each table section separately
+		this.filter('table').find('thead, tbody').each((tbodyIndex, tbodyElement) => {
 			
 			// Keep track of cells on later rows and columns
 			var spannedCells = [];
 			
 			// Loop through all rows in table
-			// TODO: split by thead / tbody?
-			$('tr', tableElement).each((rowIndex, rowElement) => {
+			$('tr', tbodyElement).each((rowIndex, rowElement) => {
 				
 				// Reset column index 
 				var colIndexActual = 0;
