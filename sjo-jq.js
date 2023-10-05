@@ -1,5 +1,5 @@
 var sjoQ = {};
-sjoQ.version = '2023.10.05.0';
+sjoQ.version = '2023.10.05.1';
 console.log('sjoQ version ' + sjoQ.version);
 
 (function($) {
@@ -168,17 +168,18 @@ console.log('sjoQ version ' + sjoQ.version);
 						colIndexActual++;
 					}
 					
-					// Write indexes to cell
-					$(cellElement).data('sjo-row', rowIndex).data('sjo-col', colIndexActual);
-					
 					// Get dimensions of cell
-					var rowspan = (cellElement.rowSpan || 1) - 0;
-					var colspan = (cellElement.colSpan || 1) - 0;
+					var rowSpan = cellElement.rowSpan || 1;
+					var colSpan = cellElement.colSpan || 1;
+					
+					// Write indexes to cell
+					$(cellElement).data('sjo-row-min', rowIndex)              .data('sjo-col-min', colIndexActual);
+					$(cellElement).data('sjo-row-max', rowIndex + rowSpan - 1).data('sjo-col-max', colIndexActual + colSpan - 1);
 					
 					// Mark spanned cells on later rows and columns
-					for (var r = rowIndex; r < rowIndex + rowspan; r++) {
+					for (var r = rowIndex; r < rowIndex + rowSpan; r++) {
 						if (!spannedCells[r]) spannedCells[r] = [];
-						for (var c = colIndexActual; c < colIndexActual + colspan; c++) {
+						for (var c = colIndexActual; c < colIndexActual + colSpan; c++) {
 							spannedCells[r][c] = true;
 						}
 					}
