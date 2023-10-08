@@ -1,5 +1,5 @@
 var sjoQ = {};
-sjoQ.version = '2023.10.05.1';
+sjoQ.version = '2023.10.08.0';
 console.log('sjoQ version ' + sjoQ.version);
 
 (function($) {
@@ -16,6 +16,7 @@ console.log('sjoQ version ' + sjoQ.version);
 		getTableHeaders: getTableHeaders,
 		numCols:         numCols,
 		indexCells:      indexCells,
+		splitCell:       splitCell,
 	});
 	
 	// Add cell with text content
@@ -146,7 +147,7 @@ console.log('sjoQ version ' + sjoQ.version);
 	function indexCells() {
 		
 		// Index each table section separately
-		this.filter('table').find('thead, tbody').each((tbodyIndex, tbodyElement) => {
+		this.filter('table').find('thead, tbody, tfoot').each((tbodyIndex, tbodyElement) => {
 			
 			// Keep track of cells on later rows and columns
 			var spannedCells = [];
@@ -191,6 +192,117 @@ console.log('sjoQ version ' + sjoQ.version);
 		});
 		
 		return this;
+	}
+	
+	// Split a cell into multiple cells, by rows or columns
+	// TODO: normalize tables that have invalid specs (conflicting rowspan / colspan)
+	// TODO: consider over/underhanging cells where some rows are incomplete
+	// TODO: also adjust col and colgroup elements if any
+	// TODO: copy attributes of existing row and cell
+	function splitCell(numRows, numCols) {
+		
+		// Build a new return set
+		// It makes sense to return a set of the new cells instead of returning the original cell for chaining, since:
+		//     (i)  the original cell no longer exists in its original form, but has been replaced by multiple new cells
+		//     (ii) the calling function will probably want to manipulate the new cells
+		var returnSet = $();
+		
+		// Number of rows and columns to split this cell into
+		numRows = parseInt(numRows, 10) || 1;
+		numCols = parseInt(numCols, 10) || 1;
+		if (numRows <= 1 && numCols <= 1) return;
+		
+		// Loop through selected cells
+		this.filter('th, td').each((i, cellElement) => {
+			var cell = $(cellElement);
+			var table = cell.closest('table')
+			
+			// Get existing cell dimensions
+			var rowSpanOrig = cellElement.rowSpan || 1;
+			var colSpanOrig = cellElement.colSpan || 1;
+			
+			// Calculate new cell dimensions
+			var rowSpanNew  = Math.max(rowSpanOrig, numRows);
+			var colSpanNew  = Math.max(colSpanOrig, numCols);
+			
+			// Index all table cells with their actual row and column indexes (within sections)
+			table.indexCells();
+			
+			// Get first and last row and column indexes of this cell
+			var rowMin = cell.data('sjo-row-min');
+			var rowMax = cell.data('sjo-row-max');
+			var colMin = cell.data('sjo-col-min');
+			var colMax = cell.data('sjo-col-max');
+			
+			// If we need to add columns, do that now
+			// by expanding all cells that overlap with the last column of this cell
+			// This will also expand the selected cell
+			// TODO: also adjust col and colgroup elements if any
+			if (colSpanNew > colSpanOrig) {
+				var cellsInColumn = table.children('thead, tbody, tfoot').children('th, td').filter((i,e) => $(e).data('sjo-col-min') <= colMax && $(e).data('sjo-col-max') >= colMax);
+				cellsInColumn.attr('colspan', i => (cellsInColumn[i].colSpan || 1) + (colSpanNew - colSpanOrig));
+			}
+			
+			// If we need to add rows, do that now
+			// by inserting rows after the last row of this cell
+			// and expanding all cells in other columns that overlap that last row
+			// TODO: copy attributes of existing row (class, style, ...?)
+			if (rowSpanNew > rowSpanOrig) {
+				var newRows = $('<tr></tr>'.repeat(rowSpanNew - rowSpanOrig));
+				var tbody = cell.closest('thead, tbody, tfoot');
+				tbody.children('tr').eq(rowMax).after(newRows);
+				var cellsInRow = tbody.children('tr').children('th, td').filter((i,e) => $(e).data('sjo-row-min') <= rowMax && $(e).data('sjo-row-max') >= rowMax);
+				cellsInRow.attr('rowspan', i => (cellsInRow[i].rowSpan || 1) + (rowSpanNew - rowSpanOrig));
+			}
+			
+			// Loop through rows we need to split into
+			var currentRow;
+			for (var r = 0; r < numRows; r++) {
+				
+				// Get the current row:
+				//     first, the <tr> element that is the parent of our <th> or <td> element
+				//     then use succeeding rows
+				if (r == 0) {
+					currentRow = cell.parent('tr');
+				} else {
+					currentRow = currentRow.next('tr');
+				}
+				
+				// Find all cells to the right of the current cell
+				var followingCells = currentRow.children('th, td').filter((i,e) => $(e).data('sjo-col-min') > colMax);
+				
+				// Append new cells at the end of the row
+				for (var c = 0; c < numCols; c++) {
+					
+					// Create a new cell
+					// Use the current cell at the top-left, as it may have unknown attributes/properties we do not want to discard
+					// TODO: clone attributes of existing cell (class, style, ...?)
+					var newCell = (r == 0 && c == 0) ? cell : $('<td></td>');
+					
+					// Append the new cell at the end of the row
+					currentRow.append(newCell);
+					
+					// Calculate the size of this cell
+					// All new cells will have rowspan/colspan=1
+					// unless the sum of the new rows/columns is less then the current rowspan/colspan,
+					// in which case the remainder is added to the cells in the last row/column
+					newCell.attr('rowspan', (r == numRows - 1 && rowSpanOrig > numRows) ? (rowSpanOrig - numRows + 1) : 1);
+					newCell.attr('colspan', (c == numCols - 1 && colSpanOrig > numCols) ? (colSpanOrig - numCols + 1) : 1);
+					
+					// Add the new cell to the returned jQuery object
+					returnSet = returnSet.add(newCell);
+					
+				}
+				
+				// Append the following cells after the new cells
+				currentRow.append(followingCells);
+				
+			}
+			
+		});
+		
+		return returnSet;
+		
 	}
 	
 })(jQuery);
